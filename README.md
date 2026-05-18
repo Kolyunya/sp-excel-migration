@@ -241,16 +241,16 @@ docker compose run --rm php php app.php app:es:delete-index
 
 ## Elasticsearch synchronization
 
-Keeping the primary relational database in sync with the Elasticsearch is one of the crucial problems to solve for the search, analytics and data representation features to function properly.
+Keeping the primary relational database in sync with Elasticsearch is one of the crucial problems to solve for the search, analytics, and data representation features to function properly.
 
-This is a classic problem in the distributed systems: primary relational database and the Elasticsearch are two independent systems that our application is talking to over the wire. And network requests are non-reliable by their nature. They may and will occasionally fail.
+This is a classic problem in distributed systems: primary relational database and the Elasticsearch are two independent systems that our application is talking to over the wire. And network requests are unreliable by their nature. They may and will occasionally fail.
 
-A naive approach to the problem would be to open a transaction in the primary database, index the document into Elasticsearch, modify the employee's salary and commit the transaction.
+A naive approach to the problem would be to open a transaction in the primary database, index the document into Elasticsearch, modify the employee's salary, and commit the transaction.
 
-The problem with this approach that the ES indexing operation may be quite slow. And also it may fail and may require a few retries, while still keep the SQL transaction open. This is extremely inefficient and may compromise the performance and the responsiveness of the whole application.
+The problem with this approach is that the ES indexing operation may be quite slow. And also it may fail and may require a few retries, while still keeping the SQL transaction open. This is extremely inefficient and may compromise the performance and the responsiveness of the whole application.
 
-One of the classic industry-standard approaches to the problems is called the "Transactional Outbox" pattern. With this pattern we modify the user state and insert the "Index user with ID = X" task in the "Outbox" table in a very quick and lightweight SQL transaction.
+One of the classic industry-standard approaches to this problem is called the "Transactional Outbox" pattern. With this pattern we modify the user state and insert the "Index user with ID = X" task in the "Outbox" table in a very quick and lightweight SQL transaction.
 
-At the same time we have a separate background workers that regularly check the outbox table for new tasks, process them and mark them as complete.
+At the same time we have separate background workers that regularly check the outbox table for new tasks, process them and mark them as complete.
 
 This way we achieve the "at least one" processing guarantee for the tasks in the outbox. And that is perfectly fine for us if the user might get indexed multiple times, because this operation is fully idempotent. This way we achieve an eventual consistency for the data inside the SQL and ES databases.
