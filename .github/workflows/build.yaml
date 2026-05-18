@@ -1,0 +1,70 @@
+name: Build
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    test:
+        name: Test the application
+        runs-on: ubuntu-latest
+
+        steps:
+            -
+                name: Checkout code
+                uses: actions/checkout@v4
+
+            -
+                name: Install dependencies
+                run: docker compose run --rm php composer install
+
+            -
+                name: Analyze code
+                run: docker compose run --quiet --rm php composer analyze
+
+            -
+                name: Run the test suite
+                run: docker compose run --quiet --rm php composer test
+
+            -
+                name: Validate code style
+                run: docker compose run --quiet --rm php composer validate-style
+
+    publish-image:
+        name: Build and publish Docker image
+        runs-on: ubuntu-latest
+        needs: test
+
+        permissions:
+            contents: read
+            packages: write
+
+        steps:
+            -
+                name: Checkout code
+                uses: actions/checkout@v4
+
+            -
+                name: Log in to GHCR
+                uses: docker/login-action@v3
+                with:
+                    registry: ghcr.io
+                    username: ${{ github.actor }}
+                    password: ${{ secrets.GITHUB_TOKEN }}
+
+            -
+                name: Extract metadata
+                uses: docker/metadata-action@v5
+                id: meta
+                with:
+                    images: ghcr.io/${{ github.repository }}
+
+            -
+                name: Build and push image
+                uses: docker/build-push-action@v6
+                with:
+                    context: .
+                    push: true
+                    target: production
+                    tags: ${{ steps.meta.outputs.tags }}
+                    labels: ${{ steps.meta.outputs.labels }}

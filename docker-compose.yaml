@@ -1,0 +1,56 @@
+services:
+    php:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: development
+        networks:
+            - elastic
+        volumes:
+            - .:/app
+        profiles:
+            - disabled
+
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch-wolfi:9.3.0
+        environment:
+            - discovery.type=single-node
+            - xpack.security.enabled=false
+        ports:
+            - '9200:9200'
+        networks:
+            - elastic
+        volumes:
+            - elasticsearch:/usr/share/elasticsearch/data
+        healthcheck:
+            test: ["CMD-SHELL", "curl -fs http://localhost:9200 || exit 1"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 3m
+        restart: unless-stopped
+
+    kibana:
+        image: docker.elastic.co/kibana/kibana-wolfi:9.3.0
+        environment:
+            - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+        ports:
+            - '5601:5601'
+        networks:
+            - elastic
+        depends_on:
+            elasticsearch:
+                condition: service_healthy
+        healthcheck:
+            test: ["CMD-SHELL", "curl -fs http://localhost:5601/api/status | grep -q 'available' || exit 1"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 3m
+        restart: unless-stopped
+
+networks:
+    elastic:
+
+volumes:
+    elasticsearch:

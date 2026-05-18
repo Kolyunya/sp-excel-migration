@@ -1,0 +1,16 @@
+parameters:
+    level: 10
+
+    paths:
+        - sources
+
+    ignoreErrors:
+        -
+            message: /Cannot access offset/
+            path: sources/Command/Elasticsearch/SearchEmployeeCommand.php
+        -
+            message: /mixed supplied/
+            path: sources/Command/Elasticsearch/SearchEmployeeCommand.php
+        -
+            message: /mixed given/
+            path: sources/Command/Elasticsearch/SearchEmployeeCommand.php
