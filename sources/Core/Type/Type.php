@@ -6,6 +6,7 @@ namespace App\Core\Type;
 
 enum Type
 {
+    case Date;
     case Boolean;
     case Integer;
     case Float;

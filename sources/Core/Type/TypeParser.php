@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core\Type;
 
 use App\Core\Type\Matcher\BooleanTypeMatcher;
+use App\Core\Type\Matcher\DateTypeMatcher;
 use App\Core\Type\Matcher\FloatTypeMatcher;
 use App\Core\Type\Matcher\IntegerTypeMatcher;
 use App\Core\Type\Matcher\StringTypeMatcher;
@@ -21,6 +22,7 @@ final class TypeParser
         private readonly bool $trim,
     ) {
         $this->matchers = [
+            new DateTypeMatcher(),
             new IntegerTypeMatcher(),
             new FloatTypeMatcher(),
             new BooleanTypeMatcher(),

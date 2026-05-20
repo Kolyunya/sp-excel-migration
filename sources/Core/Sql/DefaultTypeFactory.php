@@ -13,6 +13,7 @@ final class DefaultTypeFactory implements TypeFactoryInterface
     public function make(Type $type): string
     {
         $sqlType = match ($type) {
+            Type::Date => 'DATE',
             Type::Integer => 'BIGINT',
             Type::Float => 'FLOAT',
             Type::Boolean => 'BOOLEAN',

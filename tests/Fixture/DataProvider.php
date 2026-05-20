@@ -6,6 +6,23 @@ namespace Test\Fixture;
 
 class DataProvider
 {
+    public static function isDate(): iterable
+    {
+        yield [true, ['2026 01 15', '2026 02 20', '2026 05 01']];
+        yield [true, ['2026/01/15', '2026/02/20', '2026/05/01']];
+        yield [true, ['2026-01-15', '2026-02-20', '2026-05-01']];
+        yield [true, ['2026-01-15', '2026/02/20', '2026 05 01']];
+        yield [true, [' 2026-01-15 ', '2026-02-20', '2026-05-01']];
+        yield [true, ['2026-01-15', '', '2026-05-01']];
+    }
+
+    public static function isNotDate(): iterable
+    {
+        yield [false, ['2026-01-15', 'True', '2026-05-01']];
+        yield [false, [' 2026-01-15 ', '1', '2026-05-01']];
+        yield [false, [' 2026-01-15 ', '1.5', '2026-05-01']];
+    }
+
     public static function isBoolean(): iterable
     {
         yield [true, ['True', 'False', 'True']];
